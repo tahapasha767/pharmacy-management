@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.taha{
+    background-color:rgb(24, 23, 23);
+}
