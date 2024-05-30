@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { useState } from 'react'
 
 /*
@@ -17,6 +17,9 @@ import { useState } from 'react'
 */
 export default function Signup() {
 const [type,settype]=useState("");
+const role_type=useRef(null);
+const username=useRef(null);
+const password=useRef(null);
     return (
       <>
         {/*
@@ -35,25 +38,46 @@ const [type,settype]=useState("");
               alt="Your Company"
             />
             <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-              <div className='flex justify-center gap-10'>
-                <div className='hover:text-purple-900 cursor-pointer' onClick={()=>{
-                    settype("pharmacist")
-                }}>Pharmacist</div>
-                <div className='hover:text-purple-900 cursor-pointer' onClick={()=>{
-                    settype("company");
-                }}>Admin</div>
-              </div>
+             Harsha Managaments
             </h2>
           </div>
   
           <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-            <form className="space-y-6" action="#" method="POST">
+            <form onSubmit={(e)=>{
+               console.log(role_type.current.value);
+               const userid=username.current.value;
+               const role=role_type.current.value;
+               const pass=password.current.value;
+               const user_details={role,userid,pass};
+              e.preventDefault();
+             
+            }} className="space-y-6" action="#" method="POST">
+            <div>
+  <label htmlFor="role" className="block text-sm font-medium leading-6 text-gray-900">
+    Role
+  </label>
+  <div className="mt-2" >
+    <select
+    ref={role_type}
+      id="role"
+      name="role"
+      required
+      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+    >
+      <option value="">Select a role</option>
+      <option value="pharmacist">Pharmacist</option>
+      <option value="administrator">Administrator</option>
+    </select>
+  </div>
+</div>
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
                   Email address
                 </label>
                 <div className="mt-2">
                   <input
+                  ref={username}
                     id="email"
                     name="email"
                     type="email"
@@ -77,6 +101,7 @@ const [type,settype]=useState("");
                 </div>
                 <div className="mt-2">
                   <input
+                  ref={password}
                     id="password"
                     name="password"
                     type="password"
@@ -92,17 +117,12 @@ const [type,settype]=useState("");
                   type="submit"
                   className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                  Sign in
+                  Log In
                 </button>
               </div>
             </form>
   
-            <p className="mt-10 text-center text-sm text-gray-500">
-              Not a member?{' '}
-              <a href="#" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
-                Start a 14 day free trial
-              </a>
-            </p>
+           
           </div>
         </div>
       </>
