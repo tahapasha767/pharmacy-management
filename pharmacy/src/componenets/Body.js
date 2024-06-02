@@ -4,6 +4,7 @@ import Adminpage from './Adminpage';
 import Viewuser from './Viewuser';
 import Adduser from './Adduser';
 import Addstore from './Addstore';
+import Addmedicine from './Addmedicine';
 
 function Body() {
     const appRouter = createBrowserRouter([
@@ -14,6 +15,10 @@ function Body() {
                 {
                     path: "addstore",
                     element: <Addstore />
+                },
+                {
+                    path: "addmedicine",
+                    element: <Addmedicine />
                 },
                 {
                     path: "viewuser",

@@ -36,6 +36,10 @@ function Adduser() {
                 <label className='text-lg'>Role</label>
                 <input ref={role} className='border border-black  border-solid w-80 h-10 mt-4 rounded-md'></input>
 </div>
+<div className='flex flex-col '>
+                <label className='text-lg'>Store Id</label>
+                <input ref={role} className='border border-black  border-solid w-80 h-10 mt-4 rounded-md'></input>
+</div>
 
 {/* <div className='flex flex-col'>
 

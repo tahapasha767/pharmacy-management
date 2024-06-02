@@ -1,5 +1,6 @@
 import React, { useRef } from 'react'
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom';
 
 /*
   This example requires some changes to your config:
@@ -44,11 +45,14 @@ const password=useRef(null);
   
           <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
             <form onSubmit={(e)=>{
+              //values of role usenname and password has been collected here
+
                console.log(role_type.current.value);
                const userid=username.current.value;
                const role=role_type.current.value;
                const pass=password.current.value;
                const user_details={role,userid,pass};
+              
               e.preventDefault();
              
             }} className="space-y-6" action="#" method="POST">
