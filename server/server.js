@@ -29,10 +29,10 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/add-store", async (req, res) => {
-  const { storeID, storeName, location } = req.body;
+  const { storeID, storeName, location, manager } = req.body;
   try {
-    const query = "INSERT INTO Stores (StoreID, StoreName, Location) VALUES ($1, $2, $3)";
-    const values = [storeID, storeName, location];
+    const query = "INSERT INTO stores (storeID, storename, location, managerId) VALUES ($1, $2, $3, $4)";
+    const values = [storeID, storeName, location , manager];
     await db.query(query, values);
     res.send("Store added successfully");
   } catch (err) {
