@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
+import { Console } from "console";
 
 const app = express();
 const port = 3000;
@@ -29,10 +30,10 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/add-store", async (req, res) => {
-  const { storeID, storeName, location, manager } = req.body;
+  const { storeID, storeName, location } = req.body;
   try {
-    const query = "INSERT INTO stores (storeID, storename, location, managerId) VALUES ($1, $2, $3, $4)";
-    const values = [storeID, storeName, location , manager];
+    const query = "INSERT INTO stores (storeID, storename, location) VALUES ($1, $2, $3)";
+    const values = [storeID, storeName, location];
     await db.query(query, values);
     res.send("Store added successfully");
   } catch (err) {
@@ -45,8 +46,8 @@ app.post("/add-employee", async (req, res) => {
   const { employeeID, name, username, password, role, storeID, loginTime, logoutTime } = req.body;
   try {
     const query = `INSERT INTO Employees 
-      (EmployeeID, Name, Username, Password, Role, StoreID, LoginTime, LogoutTime) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
+      (EmployeeID, Name, Username, Password, Role, StoreID) 
+      VALUES ($1, $2, $3, $4, $5, $6)`;
     const values = [employeeID, name, username, password, role, storeID, loginTime, logoutTime];
     await db.query(query, values);
     res.send("Employee added successfully");
@@ -55,7 +56,99 @@ app.post("/add-employee", async (req, res) => {
     res.status(500).send("Error adding employee");
   }
 });
+app.post('/login', async (req, res) => {
+  // Extract data from the request
+  const { username, password } = req.body;
 
+  try {
+    // Fetch employee ID, role, and last login time from the employees table
+    const { rows } = await db.query(
+      'SELECT employeeid, role FROM employees WHERE username = $1 AND password = $2',
+      [username, password]
+    );
+
+    // If no matching user is found, return an error
+    if (rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid username or password.' });
+    }
+
+    const { employeeid, role } = rows[0];
+    let hours_worked = null;
+      await db.query(
+        'INSERT INTO logins (employee_id, log_in) VALUES ($1, CURRENT_TIMESTAMP)',
+        [employeeid]
+      );
+    
+
+    res.status(200).json({ employeeid, role, hours_worked, message: 'Login successful.' });
+  } catch (error) {
+    // Handle errors
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Endpoint to handle user logout
+app.post('/logout', async (req, res) => {
+  // Extract data from the request
+  const { employee_id } = req.body;
+
+  try {
+    const result = await db.query(
+      'UPDATE logins SET log_out = CURRENT_TIMESTAMP, hours_worked = CURRENT_TIMESTAMP - log_in WHERE employee_id = $1 AND log_out IS NULL',
+      [employee_id]
+    );
+
+    // Check if any rows were affected by the update operation
+    if (result.rowCount === 0) {
+      // If no rows were updated, respond with an error message
+      return res.status(404).json({ error: 'No active login session found for the specified employee.' });
+    }
+
+    // Send back a success response
+    res.status(200).json({ message: 'Logout successful.' });
+  } catch (error) {
+    // Handle errors
+    console.error('Error during logout:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.post("/sales", async (req, res) => {
+  const { employeeid, productid, quantitysold } = req.body;
+  try {
+    // Get the current stock level
+    const { rows } = await db.query("SELECT stocklevel FROM products WHERE productid = $1", [productid]);
+    if (rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid entries' });
+    }
+    const stockLevel = rows[0].stocklevel;
+
+    // Check if there is enough stock
+    if (stockLevel < quantitysold) {
+      return res.status(400).json({ 
+        error: `There isn't enough stock to sell, only ${stockLevel} available`, 
+        stockAvailable: stockLevel 
+      });
+    }
+
+    // Record the transaction
+    const transactionResult = await db.query(
+      "INSERT INTO salestransactions (employeeid, productid, quantitysold, transactiondatetime) VALUES ($1, $2, $3, CURRENT_TIMESTAMP) RETURNING transactionid",
+      [employeeid, productid, quantitysold]
+    );
+    const tid = transactionResult.rows[0].transactionid;
+
+    // Update the stock level
+    await db.query("UPDATE products SET stocklevel = stocklevel - $1 WHERE productid = $2", [quantitysold, productid]);
+
+    // Respond with the transaction ID
+    res.json({ message: "Transaction recorded successfully", transactionID: tid });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Couldn't add the transaction due to some issues");
+  }
+});
 app.get("/employees", async (req, res) => {
   try {
     const result = await db.query("SELECT * FROM Employees");
@@ -87,13 +180,25 @@ app.get("/profits", async (req, res) => {
 });
 
 app.post("/add-stock", async (req, res) => {
-  const { productID, name, description, price, stockLevel, storeID } = req.body;
+  const { productID, name, description, price, stockLevel } = req.body;
   try {
-    const query = `INSERT INTO Products 
-      (ProductID, Name, Description, Price, StockLevel, StoreID) 
-      VALUES ($1, $2, $3, $4, $5, $6)`;
-    const values = [productID, name, description, price, stockLevel, storeID];
-    await db.query(query, values);
+    // Check if the product already exists for the given store
+    const checkQuery = `SELECT COUNT(*) AS count FROM Products WHERE ProductID = $1 `;
+    const checkValues = [productID];
+    const checkResult = await db.query(checkQuery, checkValues);
+
+    if (checkResult.rows[0].count > 0) {
+      // If the product exists, update its stock level
+      const updateQuery = `UPDATE Products SET StockLevel = StockLevel + $1 WHERE ProductID = $2 `;
+      const updateValues = [stockLevel, productID];
+      await db.query(updateQuery, updateValues);
+    } else {
+      // If the product doesn't exist, insert a new row
+      const insertQuery = `INSERT INTO Products (ProductID, Name, Description, Price, StockLevel) VALUES ($1, $2, $3, $4, $5)`;
+      const insertValues = [productID, name, description, price, stockLevel];
+      await db.query(insertQuery, insertValues);
+    }
+
     res.send("Stock added successfully");
   } catch (err) {
     console.error(err);
@@ -101,18 +206,6 @@ app.post("/add-stock", async (req, res) => {
   }
 });
 
-app.get("/check-stock/:storeID", async (req, res) => {
-  const { storeID } = req.params;
-  try {
-    const query = "SELECT * FROM Products WHERE StoreID = $1";
-    const values = [storeID];
-    const result = await db.query(query, values);
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error retrieving stock");
-  }
-});
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

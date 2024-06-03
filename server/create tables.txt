@@ -1,75 +1,18 @@
--- Create the Stores table without the ManagerID foreign key constraint initially
-CREATE TABLE Stores (
-    StoreID INT PRIMARY KEY,
-    StoreName VARCHAR(255),
-    Location VARCHAR(255)
-);
-
--- Create the Employees table with the StoreID foreign key constraint
-CREATE TABLE Employees (
-    EmployeeID SERIAL PRIMARY KEY,
-    Name VARCHAR(255),
-    Username VARCHAR(255),
-    Password VARCHAR(255),
-    Role VARCHAR(50),
-    StoreID INT,
-    LoginTime TIMESTAMP,
-    LogoutTime TIMESTAMP,
-    FOREIGN KEY (StoreID) REFERENCES Stores(StoreID)
-);
-
--- Alter the Stores table to add the ManagerID foreign key constraint
-ALTER TABLE Stores
-ADD COLUMN ManagerID INT,
-ADD FOREIGN KEY (ManagerID) REFERENCES Employees(EmployeeID);
-
--- Create the Products table
-CREATE TABLE Products (
-    ProductID SERIAL PRIMARY KEY,
-    Name VARCHAR(255),
-    Description TEXT,
-    Price DECIMAL(10, 2),
-    StockLevel INT,
-    StoreID INT,
-    FOREIGN KEY (StoreID) REFERENCES Stores(StoreID)
-);
-
--- Create the SalesTransactions table
-CREATE TABLE SalesTransactions (
-    TransactionID SERIAL PRIMARY KEY,
-    EmployeeID INT,
-    ProductID INT,
-    QuantitySold INT,
-    TransactionDateTime TIMESTAMP,
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID),
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
-);
-
--- Create the Profits table
-CREATE TABLE Profits (
-    ProfitID SERIAL PRIMARY KEY,
-    StoreID INT,
-    ProfitAmount DECIMAL(10, 2),
-    Date DATE,
-    FOREIGN KEY (StoreID) REFERENCES Stores(StoreID)
-);
-
--- Create the Payroll table
-CREATE TABLE Payroll (
-    PayrollID SERIAL PRIMARY KEY,
-    EmployeeID INT,
-    HoursWorked DECIMAL(5, 2),
-    PayRate DECIMAL(10, 2),
-    TotalPay DECIMAL(10, 2),
-    PayDate DATE,
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
-);
-
--- Create the StockDistribution table
-CREATE TABLE StockDistribution (
-    DistributionID SERIAL PRIMARY KEY,
-    ProductID INT,
-    QuantityDistributed INT,
-    DistributionDateTime TIMESTAMP,
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+alter table and drop the login and logout times from the employees table
+ALTER TABLE employees
+DROP COLUMN login column name,
+DROP COLUMN logout column name;
+pay attention i forgot above thing but copy paste the below 
+ALTER TABLE products
+DROP COLUMN storeID;
+ALTER TABLE stores
+DROP COLUMN managerid;
+DROP TABLE IF EXISTS StockDistribution;  
+CREATE TABLE logins (
+    id SERIAL PRIMARY KEY,
+    employee_id INT,
+    log_in TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    log_out TIMESTAMP DEFAULT NULL,
+    hours_worked INTERVAL,
+    FOREIGN KEY (employee_id) REFERENCES employees(employeeid)
 );
