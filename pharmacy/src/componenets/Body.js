@@ -5,6 +5,7 @@ import Viewuser from './Viewuser';
 import Adduser from './Adduser';
 import Addstore from './Addstore';
 import Addmedicine from './Addmedicine';
+import Editstore from './Editstore';
 
 function Body() {
     const appRouter = createBrowserRouter([
@@ -18,7 +19,7 @@ function Body() {
                 },
                 {
                     path: "addmedicine",
-                    element: <Addmedicine />
+                    element: <Addmedicine/>
                 },
                 {
                     path: "viewuser",
@@ -28,6 +29,10 @@ function Body() {
                     path: "addemployee",
                     element: <Adduser />
                 },
+                {
+                    path:"editstore/:storeid",
+                    element:<Editstore/>
+                }
             ]
         },
     ]);

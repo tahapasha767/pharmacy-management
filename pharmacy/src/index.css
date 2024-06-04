@@ -7,6 +7,10 @@
     height: 79vh;
     overflow-y: auto;
 }
+.hello{
+    height: 79vh;
+    overflow-y: auto;
+}
 .add{
     color: rgb(83, 81, 81);
 }
