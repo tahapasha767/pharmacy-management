@@ -1,8 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-.taha{
-    background-color:rgb(24, 23, 23);
+
+.tata{
+
+    height: 79vh;
+    overflow-y: auto;
 }
 .add{
     color: rgb(83, 81, 81);

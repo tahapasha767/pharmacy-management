@@ -12,6 +12,15 @@ function Viewuser() {
             <div>Username</div>
             <div>Login Time</div>
             <div>Logout Time</div>
+            <div>Pr</div>
+            </div>
+            <div className='flex justify-between mt-4'>
+            <div className='ml-3'>Id</div>
+            <div>Name</div>
+            <div>Username</div>
+            <div>Login Time</div>
+            <div>Logout Time</div>
+            <div>Pr</div>
             </div>
         </div>
         </div>
