@@ -12,6 +12,12 @@ const db = new pg.Client({
   password: "1234",
   port: 5432,
 });
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -28,6 +34,7 @@ app.get("/", async (req, res) => {
     res.status(500).send("Error retrieving data");
   }
 });
+<<<<<<< HEAD
 app.delete("/delete/employee", async (req, res) => {
   const {employeeID} = req.body;
 
@@ -54,7 +61,29 @@ app.delete("/delete/employee", async (req, res) => {
 });
 
 
+=======
+app.get('/products/:id',async (req, res) => {
+  const productid = req.params.id;
+  try {
+    const { rows } = await db.query('SELECT productid, name, price,stocklevel FROM products WHERE productid = $1', [productid]);
+>>>>>>> bdf3031c0cf28a92f70d7b3b9fe4be24c4ff6cb2
 
+    if (rows.length === 0) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const product = rows[0];
+    res.json({
+        id: product.productid,
+        name: product.name,
+        quantity: product.stocklevel,
+        price: product.price
+    });
+} catch (error) {
+    console.error('Error fetching product details:', error);
+    res.status(500).json({ error: 'Internal server error' });
+}
+});
 app.post("/add-store", async (req, res) => {
   const { storeID, storeName, location } = req.body;
   try {
@@ -139,35 +168,39 @@ app.post('/logout', async (req, res) => {
   }
 });
 app.post("/sales", async (req, res) => {
-  const { employeeid, productid, quantitysold } = req.body;
+  const { employeeid, items } = req.body; // Extract employee ID and items from request body
   try {
-    // Get the current stock level
-    const { rows } = await db.query("SELECT stocklevel FROM products WHERE productid = $1", [productid]);
-    if (rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid entries' });
+    // Iterate over each item in the items array
+    for (const item of items) {
+      const { productid, quantitysold } = item;
+
+      // Get the current stock level for the product
+      const { rows } = await db.query("SELECT stocklevel FROM products WHERE productid = $1", [productid]);
+      if (rows.length === 0) {
+        return res.status(401).json({ error: `Invalid product ID: ${productid}` });
+      }
+      const stockLevel = rows[0].stocklevel;
+
+      // Check if there is enough stock
+      if (stockLevel < quantitysold) {
+        return res.status(400).json({ 
+          error: `Not enough stock for product ID ${productid}, only ${stockLevel} available`, 
+          stockAvailable: stockLevel 
+        });
+      }
+
+      // Record the transaction for this product
+      await db.query(
+        "INSERT INTO salestransactions (employeeid, productid, quantitysold, transactiondatetime) VALUES ($1, $2, $3, CURRENT_TIMESTAMP)",
+        [employeeid, productid, quantitysold]
+      );
+
+      // Update the stock level for this product
+      await db.query("UPDATE products SET stocklevel = stocklevel - $1 WHERE productid = $2", [quantitysold, productid]);
     }
-    const stockLevel = rows[0].stocklevel;
 
-    // Check if there is enough stock
-    if (stockLevel < quantitysold) {
-      return res.status(400).json({ 
-        error: `There isn't enough stock to sell, only ${stockLevel} available`, 
-        stockAvailable: stockLevel 
-      });
-    }
-
-    // Record the transaction
-    const transactionResult = await db.query(
-      "INSERT INTO salestransactions (employeeid, productid, quantitysold, transactiondatetime) VALUES ($1, $2, $3, CURRENT_TIMESTAMP) RETURNING transactionid",
-      [employeeid, productid, quantitysold]
-    );
-    const tid = transactionResult.rows[0].transactionid;
-
-    // Update the stock level
-    await db.query("UPDATE products SET stocklevel = stocklevel - $1 WHERE productid = $2", [quantitysold, productid]);
-
-    // Respond with the transaction ID
-    res.json({ message: "Transaction recorded successfully", transactionID: tid });
+    // Respond with success message
+    res.json({ message: "Transactions recorded successfully" });
 
   } catch (err) {
     console.error(err);
@@ -370,6 +403,32 @@ app.delete("/employees/:id", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Error deleting employee");
+  }
+});
+app.get("/stores/:storeid/employees", async (req, res) => {
+  const storeid = parseInt(req.params.storeid, 10);
+
+  if (isNaN(storeid)) {
+    return res.status(400).send("Invalid store ID");
+  }
+
+  try {
+    const query = `
+      SELECT e.*
+      FROM Employees e
+      WHERE e.storeid = $1
+    `;
+
+    const result = await db.query(query, [storeid]);
+
+    if (result.rows.length === 0) {
+      res.status(404).send("No employees found for the specified store");
+    } else {
+      res.status(200).json(result.rows);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving employees");
   }
 });
 
