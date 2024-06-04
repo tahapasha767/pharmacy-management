@@ -174,23 +174,34 @@ app.post("/sales", async (req, res) => {
     res.status(500).send("Couldn't add the transaction due to some issues");
   }
 });
-app.get("/employees", async (req, res) => {
+app.get("/employees/storeid/:storeid", async (req, res) => {
+  const storeid = req.params.storeid;
+
   try {
-    const result = await db.query(`
-      SELECT 
+    console.log(`Fetching employees for store ID: ${storeid}`);
+    const result = await db.query(
+      `
+      SELECT DISTINCT
         employees.*,
         stores.*
       FROM 
         stores
       LEFT JOIN 
         employees ON employees.storeid = stores.storeid
-    `);
+      WHERE 
+        employees.storeid = $1;
+      `,
+      [storeid]
+    );
     res.json(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).send("Error retrieving employees and stores");
   }
 });
+
+
+
 
 
 app.get("/stores", async (req, res) => {
