@@ -43,8 +43,7 @@ app.post("/add-store", async (req, res) => {
 });
 
 app.post("/add-employee", async (req, res) => {
-  console.log(req.body);
-  const { employeeID, name, username, password, role, storeID} = req.body;
+  const { employeeID, name, username, password, role, storeID, loginTime, logoutTime } = req.body;
   try {
     const query = `INSERT INTO Employees 
       (EmployeeID, Name, Username, Password, Role, StoreID) 
