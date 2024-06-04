@@ -195,13 +195,31 @@ app.get("/employees", async (req, res) => {
 
 app.get("/stores", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM Stores");
+    // Query to get the stores, employee count, and manager name
+    const query = `
+      SELECT 
+        s.*,
+        COUNT(e.employeeid) AS employee_count,
+        MAX(CASE WHEN e.role = 'Manager' THEN e.name ELSE NULL END) AS manager_name
+      FROM 
+        Stores s
+      LEFT JOIN 
+        Employees e ON s.storeid = e.storeid
+      GROUP BY 
+        s.storeid
+    `;
+
+    // Execute the query
+    const result = await db.query(query);
+
+    // Send the result as JSON
     res.json(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).send("Error retrieving stores");
   }
 });
+
 
 app.get("/profit", async (req, res) => {
   const { wageRate } = req.query;
@@ -220,7 +238,7 @@ app.get("/profit", async (req, res) => {
     const totalHoursWorked = hoursWorkedResult.rows[0].total_hours || 0;
     const salariesPaid = totalHoursWorked * wageRate;
 
-    // Calculate total sales for the current month
+    // Calculate total sales for the current month 
     const salesResult = await db.query(
       `SELECT SUM(st.quantitysold * p.price) as total_sales
        FROM salestransactions st
@@ -268,6 +286,81 @@ app.post("/add-stock", async (req, res) => {
   }
 });
 
+app.delete("/stores/:storeid", async (req, res) => {
+  const storeid = parseInt(req.params.storeid, 10);
+
+  if (isNaN(storeid)) {
+    return res.status(400).send("Invalid store ID");
+  }
+
+  try {
+    const employeeCountResult = await db.query(
+      "SELECT COUNT(*) AS employee_count FROM Employees WHERE storeid = $1",
+      [storeid]
+    );
+
+    const employeeCount = parseInt(employeeCountResult.rows[0].employee_count, 10);
+
+    if (employeeCount > 0) {
+      // If there are employees, return the count
+      res.status(400).json({ message: "Store cannot be deleted", employee_count: employeeCount });
+    } else {
+      // If there are no employees, delete the store
+      await db.query("DELETE FROM Stores WHERE storeid = $1", [storeid]);
+      res.status(200).send("Store deleted successfully");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error deleting store");
+  }
+});
+app.put("/employees/:id", async (req, res) => {
+  const employeeid = req.params.id;
+  let { role, storeid } = req.body;
+
+
+  const updateQuery = `
+    UPDATE Employees
+    SET 
+      role = COALESCE($1, role),
+      storeid = COALESCE($2, storeid)
+    WHERE employeeid = $3
+    RETURNING *;
+  `;
+
+  if (role === undefined) role = null;
+  if (storeid === undefined) storeid = null;
+
+  try {
+    const result = await db.query(updateQuery, [role, storeid, employeeid]);
+
+    if (result.rows.length === 0) {
+      res.status(404).send("Employee not found");
+    } else {
+      res.status(200).json(result.rows[0]);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error updating employee");
+  }
+});
+app.delete("/employees/:id", async (req, res) => {
+  const employeeid = req.params.id;
+
+  try {
+    // Delete employee
+    const deleteResult = await db.query("DELETE FROM Employees WHERE employeeid = $1 RETURNING *", [employeeid]);
+
+    if (deleteResult.rows.length === 0) {
+      res.status(404).send("Employee not found");
+    } else {
+      res.status(200).send("Employee deleted successfully");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error deleting employee");
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
