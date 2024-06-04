@@ -46,7 +46,7 @@ function Adduser() {
     return (
         <div className='bg-slate-100'>
             <div className='max-w-max'>
-                <img src='https://img.freepik.com/premium-photo/assorted-pharmaceutical-pills-capsules-scattered-across-bright-blue-background-symbolizing_155027-6397.jpg' className='w-[1200px] h-48'></img>
+                <img src='https://images.unsplash.com/photo-1585435557343-3b092031a831?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGhhcm1hY3l8ZW58MHx8MHx8fDA%3D' className='w-[1200px] h-48'></img>
             </div>
             <div className='tata w-[1000px] h-[79vh] bg-white flex ml-[40px] relative bottom-20 rounded-xl'>
                 <div>
