@@ -326,6 +326,32 @@ app.delete("/employees/:id", async (req, res) => {
     res.status(500).send("Error deleting employee");
   }
 });
+app.get("/stores/:storeid/employees", async (req, res) => {
+  const storeid = parseInt(req.params.storeid, 10);
+
+  if (isNaN(storeid)) {
+    return res.status(400).send("Invalid store ID");
+  }
+
+  try {
+    const query = `
+      SELECT e.*
+      FROM Employees e
+      WHERE e.storeid = $1
+    `;
+
+    const result = await db.query(query, [storeid]);
+
+    if (result.rows.length === 0) {
+      res.status(404).send("No employees found for the specified store");
+    } else {
+      res.status(200).json(result.rows);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving employees");
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
