@@ -61,7 +61,6 @@ app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    // Fetch employee ID, role, and last login time from the employees table
     const { rows } = await db.query(
       'SELECT employeeid, role FROM employees WHERE username = $1 AND password = $2',
       [username, password]
