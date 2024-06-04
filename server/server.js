@@ -28,6 +28,32 @@ app.get("/", async (req, res) => {
     res.status(500).send("Error retrieving data");
   }
 });
+app.delete("/delete/employee", async (req, res) => {
+  const {employeeID} = req.body;
+
+  // Input validation (assuming username is an integer)
+  
+
+  try {
+    // Use a parameterized query to prevent SQL injection
+    const result = await db.query(
+      `DELETE FROM employees WHERE employeeid = ${employeeID}`,
+       // Convert username to integer for safe comparison
+    );
+
+    // Handle successful deletion
+    if (result.affectedRows === 1) {
+      res.status(200).send("Employee deleted successfully.");
+    } else {
+      res.status(404).send("Employee with the provided username not found.");
+    }
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res.status(500).send("An error occurred during deletion.");
+  }
+});
+
+
 
 app.post("/add-store", async (req, res) => {
   const { storeID, storeName, location } = req.body;
@@ -150,13 +176,22 @@ app.post("/sales", async (req, res) => {
 });
 app.get("/employees", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM Employees,stores where employees.storeid=stores.storeid");
+    const result = await db.query(`
+      SELECT 
+        employees.*,
+        stores.*
+      FROM 
+        stores
+      LEFT JOIN 
+        employees ON employees.storeid = stores.storeid
+    `);
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error retrieving employees");
+    res.status(500).send("Error retrieving employees and stores");
   }
 });
+
 
 app.get("/stores", async (req, res) => {
   try {
