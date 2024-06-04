@@ -43,7 +43,7 @@ app.post("/add-store", async (req, res) => {
 });
 
 app.post("/add-employee", async (req, res) => {
-  const { employeeID, name, username, password, role, storeID, loginTime, logoutTime } = req.body;
+  const { employeeID, name, username, password, role, storeID } = req.body;
   try {
     const query = `INSERT INTO Employees 
       (EmployeeID, Name, Username, Password, Role, StoreID) 
@@ -150,7 +150,7 @@ app.post("/sales", async (req, res) => {
 });
 app.get("/employees", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM Employees");
+    const result = await db.query("SELECT * FROM Employees,stores where employees.storeid=stores.storeid");
     res.json(result.rows);
   } catch (err) {
     console.error(err);
