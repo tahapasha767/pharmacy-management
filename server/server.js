@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
 import { Console } from "console";
-
+import moment from "moment";
 const app = express();
 const port = 3000;
 const db = new pg.Client({
@@ -170,13 +170,41 @@ app.get("/stores", async (req, res) => {
   }
 });
 
-app.get("/profits", async (req, res) => {
+app.get("/profit", async (req, res) => {
+  const { wageRate } = req.query;
+  if (!wageRate) {
+    return res.status(400).json({ error: 'Wage rate is required' });
+  }
+
   try {
-    const result = await db.query("SELECT * FROM Profits");
-    res.json(result.rows);
+    const currentMonthStart = moment().startOf('month').format('YYYY-MM-DD');
+    const currentMonthEnd = moment().endOf('month').format('YYYY-MM-DD');
+
+    
+    const hoursWorkedResult = await db.query(
+      "SELECT SUM(hours_worked) as total_hours FROM logins WHERE date_part('month', log_in) = date_part('month', CURRENT_DATE) AND date_part('year', log_in) = date_part('year', CURRENT_DATE)"
+    );
+    const totalHoursWorked = hoursWorkedResult.rows[0].total_hours || 0;
+    const salariesPaid = totalHoursWorked * wageRate;
+
+    // Calculate total sales for the current month
+    const salesResult = await db.query(
+      `SELECT SUM(st.quantitysold * p.price) as total_sales
+       FROM salestransactions st
+       JOIN products p ON st.productid = p.productid
+       WHERE date_part('month', st.transactiondatetime) = date_part('month', CURRENT_DATE)
+       AND date_part('year', st.transactiondatetime) = date_part('year', CURRENT_DATE)`
+    );
+    const totalSales = salesResult.rows[0].total_sales || 0;
+
+    // Calculate profit
+    const profit = totalSales - salariesPaid;
+
+    res.json({ totalHoursWorked, salariesPaid, totalSales, profit });
+
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error retrieving profits");
+    res.status(500).json({ error: 'Error calculating profit' });
   }
 });
 
