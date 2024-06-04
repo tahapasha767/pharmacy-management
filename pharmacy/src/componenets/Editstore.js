@@ -2,10 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 function Editstore() {
+    
+                                     const [message, setMessage] = useState('');
   const { storeid } = useParams();
   const [realdata, setRealdata] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [flag,setflag]=useState(true);
 
   useEffect(() => {
     const fetchemployee = async () => {
@@ -25,7 +28,7 @@ function Editstore() {
     };
 
     fetchemployee();
-  }, [storeid]);
+  }, [storeid,flag]);
 
   return (
     <div className='bg-slate-100'>
@@ -49,6 +52,7 @@ function Editstore() {
               </li>
             ))}
           </ul>
+          
         )} */}
         <div className='flex  justify-between'>
         <div className='text-2xl font-bold text-gray-400 mx-8 mt-7'>Store-ID {storeid}  </div>
@@ -70,8 +74,36 @@ function Editstore() {
                             <div className='ml-52'>{employee.employeeid}</div>
                             <div>{employee.name}</div>
                             <div className='flex gap-5 mr-28'>
-                                <button className='w-16 rounded-lg h-8 bg-red-600 text-white'>Delete</button>
-                                <button className='w-16 rounded-lg h-8 bg-blue-400 text-white'>Update</button>
+                                <button className='w-16 rounded-lg h-8 bg-red-600 text-white hover:scale-105' onClick={()=>{
+                                     const employeeId=employee.employeeid;
+                                   
+                                     const deleteEmployee = async () => {
+                                       
+                                   
+                                       try {
+                                         const response = await fetch(`http://localhost:3000/employees/${employeeId}`, {
+                                           method: 'DELETE',
+                                           headers: {
+                                             'Content-Type': 'application/json'
+                                           }
+                                         });
+                                   
+                                         if (response.status === 200) {
+                                           setMessage('Employee deleted successfully');
+                                         } else if (response.status === 404) {
+                                           setMessage('Employee not found');
+                                         } else {
+                                           setMessage('Error deleting employee');
+                                         }
+                                       } catch (error) {
+                                         console.error('Error:', error);
+                                         setMessage('Error deleting employee');
+                                       }
+                                     };
+                                     deleteEmployee();
+                                     setflag(!flag);
+                                }}>Delete</button>
+                                <button className='w-16 rounded-lg h-8 bg-blue-400 text-white hover:scale-105'>Update</button>
                             </div>
                                 
                             </div>
