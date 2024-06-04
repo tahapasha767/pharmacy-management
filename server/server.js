@@ -43,12 +43,12 @@ app.post("/add-store", async (req, res) => {
 });
 
 app.post("/add-employee", async (req, res) => {
-  const { employeeID, name, username, password, role, storeID, loginTime, logoutTime } = req.body;
+  const { employeeID, name, username, password, role, storeID } = req.body;
   try {
     const query = `INSERT INTO Employees 
       (EmployeeID, Name, Username, Password, Role, StoreID) 
       VALUES ($1, $2, $3, $4, $5, $6)`;
-    const values = [employeeID, name, username, password, role, storeID, loginTime, logoutTime];
+    const values = [employeeID, name, username, password, role, storeID];
     await db.query(query, values);
     res.send("Employee added successfully");
   } catch (err) {
