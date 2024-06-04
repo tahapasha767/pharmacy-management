@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
 import { Console } from "console";
-import moment from "moment";
+//import moment from "moment";
 const app = express();
 const port = 3000;
 const db = new pg.Client({
@@ -44,12 +44,12 @@ app.post("/add-store", async (req, res) => {
 
 app.post("/add-employee", async (req, res) => {
   console.log(req.body);
-  const { employeeID, name, username, password, role, storeID, loginTime, logoutTime } = req.body;
+  const { employeeID, name, username, password, role, storeID} = req.body;
   try {
     const query = `INSERT INTO Employees 
       (EmployeeID, Name, Username, Password, Role, StoreID) 
       VALUES ($1, $2, $3, $4, $5, $6)`;
-    const values = [employeeID, name, username, password, role, storeID, loginTime, logoutTime];
+    const values = [employeeID, name, username, password, role, storeID];
     await db.query(query, values);
     res.send("Employee added successfully");
   } catch (err) {
