@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
+
 import { Console } from "console";
 //import moment from "moment";
 const app = express();
@@ -34,56 +35,54 @@ app.get("/", async (req, res) => {
     res.status(500).send("Error retrieving data");
   }
 });
-<<<<<<< HEAD
-app.delete("/delete/employee", async (req, res) => {
-  const {employeeID} = req.body;
-
-  // Input validation (assuming username is an integer)
-  
-
+app.get('/products', async (req, res) => {
   try {
-    // Use a parameterized query to prevent SQL injection
-    const result = await db.query(
-      `DELETE FROM employees WHERE employeeid = ${employeeID}`,
-       // Convert username to integer for safe comparison
-    );
-
-    // Handle successful deletion
-    if (result.affectedRows === 1) {
-      res.status(200).send("Employee deleted successfully.");
-    } else {
-      res.status(404).send("Employee with the provided username not found.");
-    }
-  } catch (error) {
-    console.error(error); // Log the error for debugging
-    res.status(500).send("An error occurred during deletion.");
-  }
-});
-
-
-=======
-app.get('/products/:id',async (req, res) => {
-  const productid = req.params.id;
-  try {
-    const { rows } = await db.query('SELECT productid, name, price,stocklevel FROM products WHERE productid = $1', [productid]);
->>>>>>> bdf3031c0cf28a92f70d7b3b9fe4be24c4ff6cb2
+    const { rows } = await db.query('SELECT productid, name, price, stocklevel FROM products');
 
     if (rows.length === 0) {
-        return res.status(404).json({ error: 'Product not found' });
+        return res.status(404).json({ error: 'No products found' });
     }
 
-    const product = rows[0];
-    res.json({
+    const products = rows.map(product => ({
         id: product.productid,
         name: product.name,
         quantity: product.stocklevel,
         price: product.price
-    });
-} catch (error) {
+    }));
+
+    res.json(products);
+  } catch (error) {
     console.error('Error fetching product details:', error);
     res.status(500).json({ error: 'Internal server error' });
-}
+  }
 });
+
+app.put('/update_stock/:product_id', async (req, res) => {
+  const { product_id } = req.params;
+  const { new_stock_value } = req.body;
+
+  if (new_stock_value == null) {
+    return res.status(400).json({ error: 'New stock value is required' });
+  }
+
+  try {
+    const query = 'UPDATE products SET stocklevel = $1 WHERE productid = $2';
+    const values = [new_stock_value, product_id];
+
+    const result = await db.query(query, values);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    res.status(200).json({ message: 'Stock updated successfully' });
+  } catch (error) {
+    console.error('Error updating stock:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 app.post("/add-store", async (req, res) => {
   const { storeID, storeName, location } = req.body;
   try {
@@ -323,7 +322,7 @@ app.post("/add-stock", async (req, res) => {
       await db.query(insertQuery, insertValues);
     }
 
-    res.send("Stock added successfully");
+   res.send("Stock added successfully");
   } catch (err) {
     console.error(err);
     res.status(500).send("Error adding stock");
