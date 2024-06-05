@@ -5,16 +5,16 @@ import Viewuser from './Viewuser';
 import Adduser from './Adduser';
 import Addstore from './Addstore';
 import Addmedicine from './Addmedicine';
-
+import Employee from './employess'
 function Body() {
     const appRouter = createBrowserRouter([
         {
             path: "/",
-            element: <Adminpage />,  // Adminpage will remain constant
+            element: <Adminpage />,  
             children: [
                 {
                     path: "addstore",
-                    element: <Addstore />
+                    element: <Employee employeeId={1}/>
                 },
                 {
                     path: "addmedicine",
