@@ -34,10 +34,39 @@ app.get("/", async (req, res) => {
     res.status(500).send("Error retrieving data");
   }
 });
+<<<<<<< HEAD
+app.delete("/delete/employee", async (req, res) => {
+  const {employeeID} = req.body;
+
+  // Input validation (assuming username is an integer)
+  
+
+  try {
+    // Use a parameterized query to prevent SQL injection
+    const result = await db.query(
+      `DELETE FROM employees WHERE employeeid = ${employeeID}`,
+       // Convert username to integer for safe comparison
+    );
+
+    // Handle successful deletion
+    if (result.affectedRows === 1) {
+      res.status(200).send("Employee deleted successfully.");
+    } else {
+      res.status(404).send("Employee with the provided username not found.");
+    }
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res.status(500).send("An error occurred during deletion.");
+  }
+});
+
+
+=======
 app.get('/products/:id',async (req, res) => {
   const productid = req.params.id;
   try {
     const { rows } = await db.query('SELECT productid, name, price,stocklevel FROM products WHERE productid = $1', [productid]);
+>>>>>>> bdf3031c0cf28a92f70d7b3b9fe4be24c4ff6cb2
 
     if (rows.length === 0) {
         return res.status(404).json({ error: 'Product not found' });
@@ -178,15 +207,35 @@ app.post("/sales", async (req, res) => {
     res.status(500).send("Couldn't add the transaction due to some issues");
   }
 });
-app.get("/employees", async (req, res) => {
+app.get("/employees/storeid/:storeid", async (req, res) => {
+  const storeid = req.params.storeid;
+
   try {
-    const result = await db.query("SELECT * FROM Employees,stores where employees.storeid=stores.storeid");
+    console.log(`Fetching employees for store ID: ${storeid}`);
+    const result = await db.query(
+      `
+      SELECT DISTINCT
+        employees.*,
+        stores.*
+      FROM 
+        stores
+      LEFT JOIN 
+        employees ON employees.storeid = stores.storeid
+      WHERE 
+        employees.storeid = $1;
+      `,
+      [storeid]
+    );
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error retrieving employees");
+    res.status(500).send("Error retrieving employees and stores");
   }
 });
+
+
+
+
 
 app.get("/stores", async (req, res) => {
   try {
