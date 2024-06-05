@@ -5,12 +5,10 @@ import Viewuser from './Viewuser';
 import Adduser from './Adduser';
 import Addstore from './Addstore';
 import Addmedicine from './Addmedicine';
-<<<<<<< HEAD
-import Employee from './employess'
-=======
 import Editstore from './Editstore';
+import Viewmedicine from './Viewmedicine';
+import Updatestock from './Updatestock';
 
->>>>>>> 4d1c23824c585bf34a4043f658a62668cbc5b5d7
 function Body() {
     const appRouter = createBrowserRouter([
         {
@@ -19,7 +17,7 @@ function Body() {
             children: [
                 {
                     path: "addstore",
-                    element: <Employee employeeId={1}/>
+                    element: <Addstore employeeId={1}/>
                 },
                 {
                     path: "addmedicine",
@@ -36,7 +34,16 @@ function Body() {
                 {
                     path:"editstore/:storeid",
                     element:<Editstore/>
+                },{
+                    path:"viewmedicine",
+                    element:<Viewmedicine/>
+
+                },
+                {
+                    path:"updatestock/:productid",
+                    element:<Updatestock/>
                 }
+               
             ]
         },
     ]);
