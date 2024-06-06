@@ -35,6 +35,27 @@ app.get("/", async (req, res) => {
     res.status(500).send("Error retrieving data");
   }
 });
+app.get('/products/:id',async (req, res) => {
+  const productid = req.params.id;
+  try {
+    const { rows } = await db.query('SELECT productid, name, price,stocklevel FROM products WHERE productid = $1', [productid]);
+
+    if (rows.length === 0) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const product = rows[0];
+    res.json({
+        id: product.productid,
+        name: product.name,
+        quantity: product.stocklevel,
+        price: product.price
+    });
+} catch (error) {
+    console.error('Error fetching product details:', error);
+    res.status(500).json({ error: 'Internal server error' });
+}
+})
 app.get('/products', async (req, res) => {
   try {
     const { rows } = await db.query('SELECT productid, name, price, stocklevel FROM products');
@@ -265,7 +286,7 @@ app.get("/stores", async (req, res) => {
 
 
 app.get("/profit", async (req, res) => {
-  const { wageRate } = req.query;
+  const { wageRate } = req.body;
   if (!wageRate) {
     return res.status(400).json({ error: 'Wage rate is required' });
   }
