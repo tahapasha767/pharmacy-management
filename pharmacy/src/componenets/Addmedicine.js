@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function AddMedicine() {
   const productID = useRef(null);
@@ -23,6 +24,7 @@ function AddMedicine() {
     };
 
     try {
+      alert("Medicine Added Successfully");
       const response = await fetch('http://localhost:3000/add-stock', {
         method: 'POST',
         headers: {
@@ -62,12 +64,12 @@ function AddMedicine() {
           alt='Banner'
         />
       </div>
-      <div className='w-[1000px] h-[79vh] bg-white flex ml-[40px] relative bottom-20 rounded-xl tata'>
+      <div className='w-[1000px] h-[79vh] bg-white flex ml-[40px] relative bottom-20 rounded-xl hello'>
         <div>
-          <div className='text-2xl font-bold text-gray-500 mx-8 mt-8'>Store</div>
+          <div className='text-2xl font-bold text-gray-500 mx-8 mt-8'>Medicine</div>
           <div className='flex justify-between'>
-            <div className='text-lg font-bold text-gray-400 mx-8 mt-8'>Add Store</div>
-            <button className='w-36 h-10 rounded-xl mr-20 mt-4 hover:scale-110 bg-black text-white'>Manage Medicine</button>
+            <div className='text-lg font-bold text-gray-400 mx-8 mt-8'>Add Medicine</div>
+            <button className='w-36 h-10 rounded-xl mr-20 mt-4 hover:scale-110 bg-black text-white'><Link to={"/viewmedicine"}>Manage Medicine</Link></button>
           </div>
           <form onSubmit={handleSubmit}>
             <div className='flex flex-col items-center ml-[45px] mt-4'>

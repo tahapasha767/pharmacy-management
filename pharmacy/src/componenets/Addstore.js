@@ -17,6 +17,7 @@ function Addstore() {
         const data = { storeID:id,storeName:name, location: locationbro,manager:managerda,employeeID:employeeid};
 
         try {
+          alert("Store Added Succesfully");
             const response = await fetch('http://localhost:3000/add-store', {
                 method: 'POST',
                 headers: {
@@ -31,6 +32,7 @@ function Addstore() {
 
             const result = await response.json();
             console.log('Success:', result);
+           
             // You can add more logic here to handle the response, e.g., display a success message or redirect
         } catch (error) {
             console.error('Error:', error);

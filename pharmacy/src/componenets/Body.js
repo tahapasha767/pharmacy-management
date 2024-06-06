@@ -41,7 +41,7 @@ function Body() {
                     element:<Editstore/>
                 },{
                     path:"viewmedicine",
-                    element:<Viewmedicine props={true}/>
+                    element:<Viewmedicine prop={true}/>
 
                 },
                 {
