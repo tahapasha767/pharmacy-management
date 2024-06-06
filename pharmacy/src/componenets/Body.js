@@ -8,10 +8,15 @@ import Addmedicine from './Addmedicine';
 import Editstore from './Editstore';
 import Viewmedicine from './Viewmedicine';
 import Updatestock from './Updatestock';
+import Dashboard from './Dashboard';
+import PharmacyTransaction from './employess';
+import Signup from './Signup';
+import Employeetable from './Employeetable';
 
 function Body() {
     const appRouter = createBrowserRouter([
         {
+            
             path: "/",
             element: <Adminpage />,  
             children: [
@@ -36,16 +41,40 @@ function Body() {
                     element:<Editstore/>
                 },{
                     path:"viewmedicine",
-                    element:<Viewmedicine/>
+                    element:<Viewmedicine props={true}/>
 
                 },
                 {
                     path:"updatestock/:productid",
                     element:<Updatestock/>
+                },
+                {
+                    path:"/",
+                    element:<Dashboard/>
                 }
+                
                
-            ]
+            ],
+            
         },
+        {
+            path:"/loginpage",
+            element:<Signup/>
+        },{
+            path:"/employee/:employeeid",
+            element:<Employeetable/>,
+            children:[{
+                path:"viewmedi",
+                element:<Viewmedicine prop={false}/>
+            },
+            {
+                
+                    path:"/employee/:employeeid",
+                    element:<PharmacyTransaction/>
+                
+            }
+        ]
+        }
     ]);
 
     return (

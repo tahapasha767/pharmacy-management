@@ -13,7 +13,7 @@ function Adminpage() {
             <div className='text-red-500 text-xl font-bold'>PMS</div>
             </div>
             <div className='flex flex-col text-black   mt-9 gap-5 text-sm text-gray-500 font-bold'>
-                <div className='hover:bg-white w-[300px] flex ml-10 hover:text-black cursor-pointer h-10 items-center'>📊 Dashboard </div>
+                <div className='hover:bg-white w-[300px] flex ml-10 hover:text-black cursor-pointer h-10 items-center'><Link to="/">📊 Dashboard</Link></div>
                 <div className='hover:bg-white w-[300px] flex ml-10 hover:text-black cursor-pointer h-10 items-center'><Link to="/addemployee">🙎‍♂️  Add User</Link></div>
                 <div className='hover:bg-white w-[300px] flex ml-10 hover:text-black cursor-pointer h-10 items-center'><Link to="/viewuser">🙋‍♂️ View Stores</Link></div>
                 <div className='hover:bg-white w-[300px] flex ml-10 hover:text-black cursor-pointer h-10 items-center'><Link to="/addstore">🆔 Add Store</Link></div>

@@ -1,7 +1,8 @@
 import React, { useEffect,useState } from 'react'
 import { Link } from 'react-router-dom';
 
-function Viewmedicine() {
+function Viewmedicine(props) {
+    console.log(props);
     const [realdata, setRealdata] = useState([]); // Use an empty array as initial state
   const [flag,setflag]=useState(true);
   useEffect(() => {
@@ -30,7 +31,7 @@ function Viewmedicine() {
                     <div>Product Name</div>
                     <div>Quantity</div>
                     <div>Price per unit</div>
-                    <div className='mr-12'>Action</div>
+                   {props.prop&&<div className='mr-12'>Action</div>}
                 </div>
                 <div>
                 {
@@ -41,7 +42,7 @@ function Viewmedicine() {
                                 <div>{medicine.name}</div>
                                 <div>{medicine.quantity}</div>
                                 <div>{medicine.price}</div>
-                                <button className='bg-green-600 w-28 text-sm h-8 text-white scale-90 hover:scale-100 rounded-lg'><Link to={'/updatestock/'+medicine.id}>Update Stock</Link></button>
+                               {props.prop&&<button className='bg-green-600 w-28 text-sm h-8 text-white scale-90 hover:scale-100 rounded-lg'><Link to={'/updatestock/'+medicine.id}>Update Stock</Link></button>}
                             </div>
                         )
 

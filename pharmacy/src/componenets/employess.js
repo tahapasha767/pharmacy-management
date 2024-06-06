@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './pharmacy.css';
+import { useParams } from 'react-router-dom';
 
 function PharmacyTransaction({ employeeId }) {
+    const {employeeid}=useParams();
+    console.log(employeeid);
     const [items, setItems] = useState([{ productId: '', quantity: '', productName: '', price: 0 }]);
     const [error, setError] = useState(null);
 
@@ -77,6 +80,10 @@ function PharmacyTransaction({ employeeId }) {
 
     return (
         <div className="transaction-container">
+            <div className=' flex justify-between mb-32 text-lg font-bold text-gray-400'>
+                <div>Pharmacist</div>
+                <div>EmployeeID-{employeeid}</div>
+            </div>
             <h1 className="transaction-title">Pharmacy Transaction</h1>
             {error && <p className="error-msg">{error}</p>}
             <form className="transaction-form">
@@ -130,7 +137,7 @@ function PharmacyTransaction({ employeeId }) {
                         )}
                     </div>
                 ))}
-                <button type="button" onClick={handleAddItem} className="btn">
+                <button type="button" onClick={handleAddItem} className="btn bg-green-700">
                     Add Item
                 </button>
                 <button type="button" onClick={handlePrintClick} className="btn">
