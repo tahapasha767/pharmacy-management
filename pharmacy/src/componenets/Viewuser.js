@@ -40,7 +40,7 @@ function Viewuser() {
     <div className='bg-slate-100'>
       <div className='max-w-max'>
         <div className='w-[1200px] h-48 bg-gradient-to-r from-purple-800 to-blue-500'></div>
-        <div className='w-[1000px] h-[79vh] bg-white flex ml-[40px] relative bottom-20 rounded-xl flex-col'>
+        <div className='w-[1000px] h-[79vh] bg-white flex ml-[40px] relative bottom-20 rounded-xl flex-col hello'>
           <div className='text-2xl text-gray-400 font-bold mx-8 mt-4'>View Stores</div>
           <div className='flex justify-between items-center mt-10 bg-slate-400 h-12 text-white px-4 mb-4'>
             <div className='w-1/6 text-center'>StoreID</div>

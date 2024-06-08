@@ -90,6 +90,7 @@ function Editstore() {
                                    
                                          if (response.status === 200) {
                                            setMessage('Employee deleted successfully');
+                                           alert("Employee deleted succesfully ")
                                          } else if (response.status === 404) {
                                            setMessage('Employee not found');
                                          } else {

@@ -8,8 +8,6 @@ function Adduser() {
     const passwordRef = useRef(null);
     const roleRef = useRef(null);
     const storeIdRef = useRef(null);
-    const loginTimeRef = useRef(null);
-    const logoutTimeRef = useRef(null);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -21,8 +19,6 @@ function Adduser() {
             password: passwordRef.current.value,
             role: roleRef.current.value,
             storeID: storeIdRef.current.value,
-            loginTime: loginTimeRef.current.value,
-            logoutTime: logoutTimeRef.current.value
         };
 
         try {
@@ -34,6 +30,7 @@ function Adduser() {
                 body: JSON.stringify(employeeData)
             });
             if (response.ok) {
+                alert("Employee added successfully")
                 console.log('Employee added successfully');
             } else {
                 console.error('Failed to add employee');
@@ -85,14 +82,6 @@ function Adduser() {
                             <div className='mt-4'>
                                 <label className='text-gray-400 font-bold'>StoreID</label>
                                 <input ref={storeIdRef} placeholder='Enter StoreId' className='border border-black border-solid w-[900px] h-10 mt-4 rounded-md'></input>
-                            </div>
-                            <div className='mt-4'>
-                                <label className='text-gray-400 font-bold'>Login Time</label>
-                                <input ref={loginTimeRef} placeholder='Enter Log time' className='border border-black border-solid w-[900px] h-10 mt-4 rounded-md'></input>
-                            </div>
-                            <div className='mt-4'>
-                                <label className='text-gray-400 font-bold'>Logout Time</label>
-                                <input ref={logoutTimeRef} placeholder='Enter Log out time' className='border border-black border-solid w-[900px] h-10 mt-4 rounded-md'></input>
                             </div>
                         </div>
                         <button type='submit' className='w-20 h-10 text-white rounded-xl bg-green-800 ml-11 mt-8'>Add</button>

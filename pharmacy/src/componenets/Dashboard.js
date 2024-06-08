@@ -58,9 +58,13 @@ function Dashboard() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col w-screen min-h-screen bg bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 ...">
       <main className="flex-1 p-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className='flex justify-between text-lg font-bold text-white'>
+          <div>Dashboard</div>
+          <div>Administrator</div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-28">
           <Card>
             <CardHeader>
               <CardTitle>Workers</CardTitle>
