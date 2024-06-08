@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 import pg from "pg";
 
 import { Console } from "console";
-//import moment from "moment";
+import moment from "moment";
 const app = express();
 const port = 3000;
 const db = new pg.Client({
@@ -285,8 +285,9 @@ app.get("/stores", async (req, res) => {
 });
 
 
-app.get("/profit", async (req, res) => {
+app.post("/profit", async (req, res) => {
   const { wageRate } = req.body;
+
   if (!wageRate) {
     return res.status(400).json({ error: 'Wage rate is required' });
   }
@@ -295,14 +296,15 @@ app.get("/profit", async (req, res) => {
     const currentMonthStart = moment().startOf('month').format('YYYY-MM-DD');
     const currentMonthEnd = moment().endOf('month').format('YYYY-MM-DD');
 
-    
+    // Query to get total hours worked in the current month
     const hoursWorkedResult = await db.query(
       "SELECT SUM(hours_worked) as total_hours FROM logins WHERE date_part('month', log_in) = date_part('month', CURRENT_DATE) AND date_part('year', log_in) = date_part('year', CURRENT_DATE)"
     );
-    const totalHoursWorked = hoursWorkedResult.rows[0].total_hours || 0;
+    const totalHoursWorked = hoursWorkedResult.rows[0].total_hours.hours || 0;
+    console.log(totalHoursWorked);
     const salariesPaid = totalHoursWorked * wageRate;
 
-    // Calculate total sales for the current month 
+    // Query to get total sales for the current month
     const salesResult = await db.query(
       `SELECT SUM(st.quantitysold * p.price) as total_sales
        FROM salestransactions st
@@ -310,18 +312,29 @@ app.get("/profit", async (req, res) => {
        WHERE date_part('month', st.transactiondatetime) = date_part('month', CURRENT_DATE)
        AND date_part('year', st.transactiondatetime) = date_part('year', CURRENT_DATE)`
     );
-    const totalSales = salesResult.rows[0].total_sales || 0;
+    
+    const totalSales = salesResult.rows[0]?.total_sales || 0;
 
+    // Query to get the total number of workers
+    const workersResult = await db.query(
+      "SELECT COUNT(*) as total_workers FROM employees"
+    );
+    const totalWorkers = workersResult.rows[0]?.total_workers || 0;
+    const stocksold = await db.query(
+      "SELECT SUM(quantitysold) as stocksold FROM salestransactions;"
+    );
+    const Netstock = stocksold.rows[0]?.stocksold || 0;
     // Calculate profit
     const profit = totalSales - salariesPaid;
 
-    res.json({ totalHoursWorked, salariesPaid, totalSales, profit });
+    res.json({ totalHoursWorked, salariesPaid, totalSales, profit, totalWorkers,Netstock });
 
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error calculating profit' });
   }
 });
+
 
 app.post("/add-stock", async (req, res) => {
   const { productID, name, description, price, stockLevel } = req.body;
